@@ -1,5 +1,7 @@
 <?php
 
+error_reporting(0); // disable error reporting for production
+
 // some sort of security token (embedded inside the app)
 if (!isset($_POST["sec"]) || $_POST["sec"] !== "INSERT_A_SECURITY_TOKEN_HERE") {
 	header("HTTP/1.0 404 Not Found"); // request for post.php did not come from the app
