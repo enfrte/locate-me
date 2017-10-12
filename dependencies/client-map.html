@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!--<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">-->
+<meta 
+	http-equiv="Content-Security-Policy" 
+	content="default-src * gap: ws: https://ssl.gstatic.com; style-src * 'unsafe-inline' 'self' data: blob:;script-src * 'unsafe-inline' 'unsafe-eval' data: blob:;img-src * data: 'unsafe-inline' 'self' content:; media-src mediastream;">
+	
+<meta name="format-detection" content="telephone=no">
+<meta name="msapplication-tap-highlight" content="no">
+<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+<title>Locate-Me</title>
+<style>
+  /* Always set the map height explicitly to define the size of the div element that contains the map */
+  #map { height: 90vh; }
+  div pre #info { height: 10vh; }
+  .info { margin-right:5px; color:white; background-color:navy; padding:5px; }
+  /* Optional: Makes the sample page fill the window. */
+  html, body { margin: 0; padding: 0; }
+</style>
+</head>
+<body>
+
+<div><pre style="margin-left:15px;" id="info">Null</pre></div>
+<div id="map"></div>
+
+<script 
+src="https://maps.googleapis.com/maps/api/js?key=MAPS_API_KEY_HERE">
+</script>
+
+<script>
+console.log(formatTime(Date()));
+
+// https://developers.google.com/maps/documentation/javascript/geolocation
+var map; var marker;
+var lat = 65.025984; var lng = 25.470794; // default map location in case no position response is available
+var res_data; var res_longitude; var res_latitude; var res_speed; var res_time; // res = response (data from the ajax call)
+var xhr = new XMLHttpRequest();
+
+function getPosition() {
+  pos = {
+    lat: res_latitude,
+    lng: res_longitude,
+  };
+  return ( isNaN(pos.lat) || isNaN(pos.lng) ) ? false : pos; // return pos only if lat and lng values are numbers
+}
+
+function initMap() {
+  // set new map, assign default properties
+	//console.log("initMap ran");
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: { lat, lng }, zoom: 14
+  });
+  // check if the requested data is usable (lat, lng === numbers) before trying to use it
+  if(getPosition() !== false) {
+    map.setCenter( getPosition() ); // set latest position as the map center
+    addMarker();
+		//console.log("InitMap ran here");
+  }
+}
+
+// place marker on the map
+function addMarker() {
+	//console.log("Add Marker ran");
+  //https://developers.google.com/maps/documentation/javascript/markers
+  if(marker){ marker.setMap(null); } // remove visibility of current marker
+  marker = new google.maps.Marker({
+    position: getPosition(),
+    map: map,
+    title: formatTime(res_time),
+  });
+  marker.setMap(map); // set the marker 
+}
+
+function getData() {
+  xhr.addEventListener("load", reqListener); // call reqListener when xhr has finished (I think)
+  xhr.open("GET", "http://example.com/locate-me/data.txt");
+  xhr.send();
+}
+
+function reqListener() {
+  // res_data = long, lat, accuracy, speed, time
+	//console.log("reqListener: " + xhr.responseText);
+  res_data = '[' + xhr.responseText + ']';
+  res_data = JSON.parse(res_data);
+  res_latitude = res_data[0]; res_longitude = res_data[1]; res_accuracy = res_data[2]; res_speed = res_data[3]; res_time = res_data[4];
+  var formatted_time = formatTime(res_time);
+	
+  document.getElementById('info').innerHTML = '<span class="info">Lat: ' + escapeHtml(res_latitude) + '</span><span class="info">Long: ' + escapeHtml(res_longitude) + '</span><span class="info">Accuracy: ' + escapeHtml(res_accuracy) + '</span><span class="info">Speed: ' + escapeHtml(res_speed) + '</span><span class="info">' + escapeHtml(formatted_time) + '</span>';
+	// I should probably learn closures or promises, but until then...
+	// initiate the map - initMap
+	if(map !== undefined){
+		addMarker();
+	} else {
+		initMap();
+		//console.log("reqListener -> initMap called");
+	}
+}
+
+function formatTime(time) {
+  var t = new Date(escapeHtml(time));
+  var hours, mins, secs;
+  if(t.getHours() < 10) { hours = "0" + t.getHours(); } else { hours = t.getHours(); }
+  if(t.getMinutes() < 10) { mins = "0" + t.getMinutes(); } else { mins = t.getMinutes(); }
+  if(t.getSeconds() < 10) { secs = "0" + t.getSeconds(); } else { secs = t.getSeconds(); }
+  var hms = hours +':'+ mins +':'+ secs;
+  return 'Updated: ' + hms;
+}
+
+// php htmlspecialchars replacement in js 
+function escapeHtml(text) {
+  var map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
+
+function init() {
+  getData();
+  setInterval(getData, 5000); 
+}
+
+init();
+
+</script>
+
+
+
+</body>
+</html>
