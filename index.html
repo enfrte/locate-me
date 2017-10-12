@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">-->
+    <meta http-equiv="Content-Security-Policy" content="default-src * gap: ws: https://ssl.gstatic.com;style-src * 'unsafe-inline' 'self' data: blob:;script-src * 'unsafe-inline' 'unsafe-eval' data: blob:;img-src * data: 'unsafe-inline' 'self' content:;media-src mediastream;">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+    <title>Locate-Me</title>
+</head>
+<body>
+<h3>Locate-Me Info</h3>
+<p>Debugging and performance.</p>
+
+<p><strong>From device: </strong></p>
+<p id="watchPositionOutput">Not started</p>
+
+<hr>
+
+<p><strong>Server status: </strong></p>
+<p id="status">Not connected</p>
+
+<script type="text/javascript" src="cordova.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
