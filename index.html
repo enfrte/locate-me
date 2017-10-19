@@ -1,14 +1,120 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <!--<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">-->
-    <meta http-equiv="Content-Security-Policy" content="default-src * gap: ws: https://ssl.gstatic.com;style-src * 'unsafe-inline' 'self' data: blob:;script-src * 'unsafe-inline' 'unsafe-eval' data: blob:;img-src * data: 'unsafe-inline' 'self' content:;media-src mediastream;">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="msapplication-tap-highlight" content="no">
-    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
-    <title>Locate-Me</title>
+<!--<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">-->
+<meta http-equiv="Content-Security-Policy" content="default-src * gap: ws: https://ssl.gstatic.com;style-src * 'unsafe-inline' 'self' data: blob:;script-src * 'unsafe-inline' 'unsafe-eval' data: blob:;img-src * data: 'unsafe-inline' 'self' content:;media-src mediastream;">
+
+<meta name="format-detection" content="telephone=no">
+<meta name="msapplication-tap-highlight" content="no">
+<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+<title>Locate-Me</title>
+<style>
+body { 
+  background: white; 
+  font-family: monospace, "Lucida Console", "Courier New", Courier, Monaco;
+}
+
+.roundButton {
+  margin-left: 10px;
+  font-weight: bold;
+  border: 0 solid;
+  border-radius: 100%;
+  width: 1.5rem;
+  height: 1.5rem;
+  vertical-align: bottom;
+}
+
+.greenButton {
+  background: lime;
+}
+
+.redButton {
+  background: pink;
+  margin-left: 0;
+}
+
+p { 
+  display: block;
+  padding: 15px;
+  margin: 0;
+  font-size: large;
+}
+ .hint { font-size: small; }
+ 
+.alt-bg {
+  background: whitesmoke;
+}
+
+.timeContainer {
+  margin-top: 10px;
+  display: block;
+}
+
+.timeContainer input {
+  margin-right: 5px;
+}
+
+#saveTimes {
+  width:100%;
+  background: green;
+  color:white;
+  padding: 10px;
+  font-size: 18px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+#popup {
+  margin:0 auto;
+  width: 200px;
+  padding: 20px;
+  position:fixed;
+  top:0px;
+  text-align: center;
+  background: green;
+  color: white;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  visibility: hidden;
+}
+
+</style>
 </head>
 <body>
+
+<div id="popup">Settings saved</div>
+
+<p>Add as many times as you want to each day</p>
+
+<form>
+<p id="mon" class="alt-bg">
+    Mon<button class="roundButton greenButton">+</button><span class="hint"> Start time - End time</span>
+</p>
+<p id="tue">
+    Tue<button class="roundButton greenButton">+</button><span class="hint"> Start time - End time</span>
+</p>
+<p id="wed" class="alt-bg">
+    Wed<button class="roundButton greenButton">+</button><span class="hint"> Start time - End time</span>
+</p>
+<p id="thu">
+    Thu<button class="roundButton greenButton">+</button><span class="hint"> Start time - End time</span>
+</p>
+<p id="fri" class="alt-bg">
+    Fri<button class="roundButton greenButton">+</button><span class="hint"> Start time - End time</span>
+</p>
+<p id="sat">
+    Sat<button class="roundButton greenButton">+</button><span class="hint"> Start time - End time</span>
+</p>
+<p id="sun" class="alt-bg">
+    Sun<button class="roundButton greenButton">+</button><span class="hint"> Start time - End time</span>
+</p>
+
+<button id="saveTimes" type="submit">Save</button>
+</form>
+
 <h3>Locate-Me Info</h3>
 <p>Debugging and performance.</p>
 
@@ -19,6 +125,8 @@
 
 <p><strong>Server status: </strong></p>
 <p id="status">Not connected</p>
+
+<button id="clearLocalStorage">Clear Local Storage</button>
 
 <script type="text/javascript" src="cordova.js"></script>
 <script src="js/app.js"></script>
