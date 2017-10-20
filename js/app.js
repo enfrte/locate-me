@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 function init() { 
     //document.addEventListener("DOMContentLoaded", watchPosition, false); // to test on web browser
@@ -8,44 +26,48 @@ function init() {
 var checkPeriodically; // period to check the time and send the data to the server 
 var watchPositionOutput = document.getElementById('watchPositionOutput'); 
 var ajaxVars; // HTTP POST data string
-//var today;
 
 /* ---------------------------------- Local Functions ---------------------------------- */
 function watchPosition() {
-	checkPeriodically = setInterval(checkTime, 10000);
+
+    checkPeriodically = setInterval(checkTime, 10000);
+    
     var watchID = navigator.geolocation.watchPosition(onSuccess, onError, options); // Returns: String. Returns a watch id that references the watch position interval. The watch id should be used with navigator.geolocation.clearWatch to stop watching for changes in position.
 
     var options = {
-        maximumAge: 5000, 
-        timeout: 9000,
+        maximumAge: 0, 
+        timeout: 10000,
         enableHighAccuracy: true,
     }
     
     function onSuccess(position) {
-        // there may not be an connection to the server. Output an error and run the final code regardless
-        try {
-            ajaxVars = 
-                "lt=" +     position.coords.latitude + 
-                "&lg=" +    position.coords.longitude +
-                "&ac=" +    position.coords.accuracy +
-                "&sp=" +    position.coords.speed +
-                "&ts=" +    position.timestamp +
-                "&sec=SECURITY_TOKEN_HERE"; // position.timestamp is not a typo ;)
-        }
-        catch(err) {
-            document.getElementById("status").innerHTML = err.message;
-        }
-        finally {
-            var dt = new Date(position.timestamp);
-            date_time = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate() + ' ' + dt.getHours() + ':' + dt.getMinutes() + ':' + dt.getSeconds();
-            watchPositionOutput.innerHTML = 
-                'Latitude: '  + position.coords.latitude  + '<br>' +
-                'Longitude: ' + position.coords.longitude + '<br>' +
-                'Accuracy: '  + position.coords.accuracy  + '<br>' +
-                'Speed: '     + position.coords.speed     + '<br>' +
-                'Timestamp: ' + date_time                 + '<br>';
-        }
-    }
+		// prepare ajax data
+		ajaxVars = 
+			"lt=" +     position.coords.latitude + 
+			"&lg=" +    position.coords.longitude +
+			"&ac=" +    position.coords.accuracy +
+			"&sp=" +    position.coords.speed +
+			"&ts=" +    position.timestamp +
+			"&sec=SECURITY_TOKEN_HERE"; // position.timestamp is not a typo ;)
+		
+		// format the timestamp
+		var dt = new Date(position.timestamp);
+		date_time = 
+			dt.getFullYear() + '-' + 
+			(dt.getMonth() + 1) + '-' + 
+			dt.getDate() + ' ' + 
+			dt.getHours() + ':' + 
+			dt.getMinutes() + ':' + 
+			dt.getSeconds();
+			
+		// output to the app
+		watchPositionOutput.innerHTML = 
+			'Lat.: '  	  + position.coords.latitude  + '<br>' +
+			'Long.: ' 	  + position.coords.longitude + '<br>' +
+			'Acc.: '  	  + position.coords.accuracy  + 'm<br>' +
+			'Speed: '     + position.coords.speed     + '<br>' +
+			'Time: ' 	  + date_time                 + '<br>';
+	}
 
     function onError(error) {
         watchPositionOutput.innerHTML = 'code: ' + error.code + '<br>' +'message: ' + error.message + '<br>';
@@ -53,8 +75,8 @@ function watchPosition() {
 
 }
 
-function ajax_post(ajaxVars){
-    if (typeof(ajaxVars) === 'undefined') {
+function ajax_post(postData){
+    if (typeof(postData) === 'undefined') {
         return false; 
     }
 
@@ -78,9 +100,9 @@ function ajax_post(ajaxVars){
         }
     }
     // Send data to PHP, and wait for response to update the status div
-    req.send(ajaxVars); // execute the request
+    req.send(postData); // execute the request
     document.getElementById("status").innerHTML = "processing...";
-    //console.log('Ajax!');
+    //console.log('Ajax called');
 }
 
 /* 
@@ -109,17 +131,14 @@ function checkTime() {
     // iterate through the array for today and return true if current time is in range of condition test
     if( timeDb[numberToDay[today]].some(function(t){ return hms >= t.start && hms <= t.end; }) ) {
         ajax_post(ajaxVars); // returned true
-        //console.log(true);
     } 
     else {
         document.getElementById("status").innerHTML = "Data not scheduled to be posted to the server yet"; // returned false
-        //console.log(false);
     }
 }
 
 // dynamically add time input elements to the GUI
 var addTime = function(start, end, parentId){
-    //console.log(start);
     var startTime = document.createElement('input');
     startTime.placeholder = "Start Time";
     startTime.type = "time";
@@ -139,8 +158,8 @@ var addTime = function(start, end, parentId){
         parentTag.removeChild(timeContainer);
     });
 
-    var timeContainer = document.createElement('div');
-    timeContainer.className = "timeContainer";
+	var timeContainer = document.createElement('div');
+	timeContainer.className = "timeContainer";
 
     // define parentTag based on whether or not addTime was called from the event click or called from localStorage
     var parentTag;
@@ -155,7 +174,7 @@ var addTime = function(start, end, parentId){
     timeContainer.appendChild(startTime);
     timeContainer.appendChild(endTime);
     timeContainer.appendChild(removeTime);
-}
+};
 
 // populate days with existing times using localStorage
 for(var day in timeDb) {
@@ -174,15 +193,17 @@ for(var i = 0; i < dayButton.length; i++) {
     dayButton[i].addEventListener( 'click', addTime );
 }
 
+// saved popup message with animation
 var popUp = function() {
 	var p = document.getElementById('popup');
- 	p.style.visibility = 'visible';
+	p.style.visibility = 'visible';
 	p.style.opacity = 1;
- 	p.style.transition = "opacity 0.25s linear";
+	p.style.transition = "opacity 0.25s linear";
+	// wait and fade out
 	setTimeout(function(){
-  		p.style.visibility = 'hidden';
-    	p.style.opacity = 0;
-  		p.style.transition = "visibility 0s 2s, opacity 1s linear";
+		p.style.visibility = 'hidden';
+		p.style.opacity = 0;
+		p.style.transition = "visibility 0s 2s, opacity 1s linear";
 	}, 1500);
 };
 
