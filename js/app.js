@@ -2,7 +2,6 @@
 function init() { 
     //document.addEventListener("DOMContentLoaded", watchPosition, false); // to test on web browser
     document.addEventListener("deviceready", watchPosition, false); // deviceready is a cordova event
-    checkPeriodically = setInterval(checkTime, 10000);
 }
 
 /* ---------------------------------- Local Variables ---------------------------------- */
@@ -13,7 +12,7 @@ var ajaxVars; // HTTP POST data string
 
 /* ---------------------------------- Local Functions ---------------------------------- */
 function watchPosition() {
-
+	checkPeriodically = setInterval(checkTime, 10000);
     var watchID = navigator.geolocation.watchPosition(onSuccess, onError, options); // Returns: String. Returns a watch id that references the watch position interval. The watch id should be used with navigator.geolocation.clearWatch to stop watching for changes in position.
 
     var options = {
@@ -177,15 +176,15 @@ for(var i = 0; i < dayButton.length; i++) {
 
 var popUp = function() {
 	var p = document.getElementById('popup');
-  p.style.visibility = 'visible';
+ 	p.style.visibility = 'visible';
 	p.style.opacity = 1;
-  p.style.transition = "opacity 0.25s linear";
+ 	p.style.transition = "opacity 0.25s linear";
 	setTimeout(function(){
-  	  p.style.visibility = 'hidden';
-      p.style.opacity = 0;
+  		p.style.visibility = 'hidden';
+    	p.style.opacity = 0;
   		p.style.transition = "visibility 0s 2s, opacity 1s linear";
-  }, 1500);
-}
+	}, 1500);
+};
 
 // Save times to dataset
 var setTimes = function(e){
@@ -223,7 +222,7 @@ var saveButton = document.getElementById("saveTimes").addEventListener( 'click',
 var clearLocalStorage = function() {
     localStorage.clear();
     console.log('Cleared storage');
-}
+};
 var clearLocalStorageButton = document.getElementById("clearLocalStorage").addEventListener( 'click', clearLocalStorage );
 
 init();
