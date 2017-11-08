@@ -17,24 +17,28 @@
   .info { margin-right:5px; color:white; background-color:navy; padding:5px; }
   /* Optional: Makes the sample page fill the window. */
   html, body { margin: 0; padding: 0; }
+  #lostSignal { background: red; padding: 15px; color: white; text-align: center; font-size: large; width: 30%; font-family: sans-serif; position: absolute; z-index: 99; left:0; right:0; top:0; bottom:0; margin:auto; max-height:fit-content; overflow:auto; visibility: hidden; }
 </style>
 </head>
 <body>
+
+<div id="lostSignal">NO STATUS</div>
 
 <div><pre style="margin-left:15px;" id="info">Null</pre></div>
 <div id="map"></div>
 
 <script 
-src="https://maps.googleapis.com/maps/api/js?key=MAPS_API_KEY_HERE">
+src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY_HERE">
 </script>
 
 <script>
 console.log(formatTime(Date()));
 
 // https://developers.google.com/maps/documentation/javascript/geolocation
-var map; var marker;
+var map; var marker; var accuracyCircle;
+var lostSignal = document.getElementById('lostSignal');
 var lat = 65.025984; var lng = 25.470794; // default map location in case no position response is available
-var res_data; var res_longitude; var res_latitude; var res_speed; var res_time; // res = response (data from the ajax call)
+var res_data; var res_longitude; var res_latitude; var res_speed; var res_time; var res_accuracy; // res = response (data from the ajax call)
 var xhr = new XMLHttpRequest();
 
 function getPosition() {
@@ -47,7 +51,7 @@ function getPosition() {
 
 function initMap() {
   // set new map, assign default properties
-	//console.log("initMap ran");
+  //console.log("initMap ran");
   map = new google.maps.Map(document.getElementById('map'), {
     center: { lat, lng }, zoom: 14
   });
@@ -55,8 +59,51 @@ function initMap() {
   if(getPosition() !== false) {
     map.setCenter( getPosition() ); // set latest position as the map center
     addMarker();
-		//console.log("InitMap ran here");
+		
+    console.log( "Start accuracy: " + res_accuracy );
+    setAccuracyCircle();
   }
+  checkSignal();
+}
+
+function checkSignal() {
+  var currentTime = new Date().getTime();
+  var timeDifference; 
+  if (typeof(res_time) != 'undefined') {
+    timeDifference = currentTime - res_time;
+  }
+
+  if(typeof(res_accuracy) === 'undefined'){
+    lostSignal.style.visibility = 'visible';
+    lostSignal.innerText = 'NOT READY';
+  }
+  else if(res_accuracy > 30){
+    lostSignal.style.visibility = 'visible';
+    lostSignal.innerText = 'NO ACCURACY';
+  }
+  else if(typeof(timeDifference) != 'undefined' && timeDifference > 21000){
+    lostSignal.style.visibility = 'visible';
+    lostSignal.innerText = 'NO RECENT LOCATION';
+  }
+  else {
+    lostSignal.style.visibility = 'hidden';
+  }
+}
+
+function setAccuracyCircle() {
+  // accuracy circle graphic
+  if(accuracyCircle){ accuracyCircle.setMap(null); } // remove old circle
+  accuracyCircle = new google.maps.Circle({
+    strokeColor: 'blue',
+    strokeOpacity: 0.4,
+    strokeWeight: 1.2,
+    fillColor: 'blue',
+    fillOpacity: 0.15,
+    map: map,
+    center: getPosition(),
+    radius: res_accuracy
+  });
+  accuracyCircle.setMap(map); // add new circle 
 }
 
 // place marker on the map
@@ -70,17 +117,19 @@ function addMarker() {
     title: formatTime(res_time),
   });
   marker.setMap(map); // set the marker 
+  setAccuracyCircle(); // add the accuracyCircle
 }
 
 function getData() {
   xhr.addEventListener("load", reqListener); // call reqListener when xhr has finished (I think)
-  xhr.open("GET", "http://example.com/locate-me/data.txt");
+  xhr.open("GET", "http://codinginthecold.tk/test/locate-me/data.txt");
+  //xhr.open("GET", "http://localhost/locate-me/get.php", true);
   xhr.send();
 }
 
 function reqListener() {
   // res_data = long, lat, accuracy, speed, time
-	//console.log("reqListener: " + xhr.responseText);
+  //console.log("reqListener: " + xhr.responseText);
   res_data = '[' + xhr.responseText + ']';
   res_data = JSON.parse(res_data);
   res_latitude = res_data[0]; res_longitude = res_data[1]; res_accuracy = res_data[2]; res_speed = res_data[3]; res_time = res_data[4];
@@ -91,6 +140,7 @@ function reqListener() {
 	// initiate the map - initMap
 	if(map !== undefined){
 		addMarker();
+    checkSignal();
 	} else {
 		initMap();
 		//console.log("reqListener -> initMap called");
@@ -98,17 +148,19 @@ function reqListener() {
 }
 
 function formatTime(time) {
-  var t = new Date(escapeHtml(time));
+  var t = new Date(time);
   var hours, mins, secs;
   if(t.getHours() < 10) { hours = "0" + t.getHours(); } else { hours = t.getHours(); }
   if(t.getMinutes() < 10) { mins = "0" + t.getMinutes(); } else { mins = t.getMinutes(); }
   if(t.getSeconds() < 10) { secs = "0" + t.getSeconds(); } else { secs = t.getSeconds(); }
   var hms = hours +':'+ mins +':'+ secs;
-  return 'Updated: ' + hms;
+  return 'Updated: ' + escapeHtml(hms);
 }
 
 // php htmlspecialchars replacement in js 
 function escapeHtml(text) {
+	if(text === null || text === undefined){ return; } // do not deal with these primitives
+	text = text.toString(); // convert numbers to text for replace() to work
   var map = {
     '&': '&amp;',
     '<': '&lt;',
@@ -127,8 +179,6 @@ function init() {
 init();
 
 </script>
-
-
 
 </body>
 </html>
