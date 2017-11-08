@@ -35,7 +35,7 @@ function watchPosition() {
     var watchID = navigator.geolocation.watchPosition(onSuccess, onError, options); // Returns: String. Returns a watch id that references the watch position interval. The watch id should be used with navigator.geolocation.clearWatch to stop watching for changes in position.
 
     var options = {
-        maximumAge: 0, 
+        maximumAge: 6000, 
         timeout: 10000,
         enableHighAccuracy: true,
     }
@@ -127,7 +127,7 @@ function checkTime() {
     // create a time
     var d = new Date();
     var today = d.getDay();
-    var hms = d.getHours()+":"+d.getMinutes(); // +":"+d.getSeconds();
+    var hms = ('0' + d.getHours()).slice(-2)+":"+('0' + d.getMinutes()).slice(-2); // 0 + ... slice(-2) ensures leading zero
     // iterate through the array for today and return true if current time is in range of condition test
     if( timeDb[numberToDay[today]].some(function(t){ return hms >= t.start && hms <= t.end; }) ) {
         ajax_post(ajaxVars); // returned true
