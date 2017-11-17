@@ -10,9 +10,15 @@ This is a Cordova app with a maps client. You'll need some place to host the map
 
 There is a GUI to add when you want the app to send data to the server. The settings are saved to the apps local storage. 
 
-**Screenshot**
+**Screenshots**
+
+Phone UI
 
 ![Screenshot of GUI](https://i.imgur.com/QnHPeft.png)
+
+Client UI
+
+![Client Map UI](https://i.imgur.com/eoCEpUo.png)
 
 ## Requirements 
 
