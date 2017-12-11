@@ -1,12 +1,12 @@
 # locate-me
 
-Locate an Android device in real time with Google maps.
+Broadcast the location of a device during set times. Monitor it from a client side webpage.
 
 **WARNING** There are probably a lot of security holes in this app. I need to read up on the Content-Security-Policy and figure out how to allow just what is needed to get data from the various external sources. Use this code at your own risk. 
 
 ## About
 
-This is a Cordova app with a maps client. You'll need some place to host the maps client and its required files. The Cordova app polls the device's GPS or other geo-location services, and uploads the data to your webserver. This data (the device's location) is viewable and updated on the google maps web client (just a regular web page) hosted on your server. If you want this data to be private, secure the maps client. 
+This is a Cordova Android app with a maps client. You'll need some place to host the maps client and its required files. The Cordova app polls the device's GPS or other geo-location services, and uploads the data to your webserver. This data (the device's location) is viewable and updated on the google maps web client (just a regular web page) hosted on your server. If you want this data to be private, secure the maps client. 
 
 There is a GUI to add when you want the app to send data to the server. The settings are saved to the apps local storage. 
 
