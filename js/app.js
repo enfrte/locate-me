@@ -30,6 +30,8 @@ var ajaxVars; // HTTP POST data string
 /* ---------------------------------- Local Functions ---------------------------------- */
 function watchPosition() {
 
+    cordova.plugins.backgroundMode.enable(); // enable backgroundMode (app still runs in the background)
+    
     checkPeriodically = setInterval(checkTime, 10000);
     
     var watchID = navigator.geolocation.watchPosition(onSuccess, onError, options); // Returns: String. Returns a watch id that references the watch position interval. The watch id should be used with navigator.geolocation.clearWatch to stop watching for changes in position.
